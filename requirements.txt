@@ -1,0 +1,8 @@
+Pillow>=10.0.0
+
+# Bundles an FFmpeg binary used to watermark videos and strip audio.
+# Alternative: install system FFmpeg and ensure `ffmpeg` is on PATH.
+#   Windows: https://ffmpeg.org/download.html  or  winget install FFmpeg
+#   macOS:   brew install ffmpeg
+#   Linux:   sudo apt install ffmpeg
+imageio-ffmpeg>=0.5.0
