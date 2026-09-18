@@ -1,6 +1,6 @@
 # Watermarked Assets
 
-Scripts to add center watermarks and corner brand marks to images and videos.
+Scripts to watermark media, convert files for web/SEO, and embed company ownership metadata on images and videos.
 
 ## Setup
 
@@ -22,7 +22,7 @@ pip install -r requirements.txt
 |---------|---------|
 | `Pillow` | Image watermarking and WebP conversion |
 | `piexif` | EXIF ownership metadata for images |
-| `imageio-ffmpeg` | Bundled FFmpeg for video watermarking / SEO MP4 conversion |
+| `imageio-ffmpeg` | Bundled FFmpeg for video watermarking / SEO MP4 conversion / video metadata |
 
 Optional: install system [FFmpeg](https://ffmpeg.org/download.html) and put it on `PATH`. If both exist, system FFmpeg is preferred.
 
@@ -32,7 +32,6 @@ Optional: install system [FFmpeg](https://ffmpeg.org/download.html) and put it o
 
 | Script | What it does |
 |--------|----------------|
-| `add_watermark.py` | Legacy: top-right brand on `home`, `products`, `works` (images only) |
 | `add_watermark_center.py` | Center logo with opacity; images + videos; interactive |
 | `add_brandmark.py` | Corner brand mark (UL/UR/LL/LR); images + videos; interactive |
 | `seo_enhancements.py` | Convert images → WebP and videos → MP4 (H.264 + AAC) for web/SEO |
@@ -42,6 +41,12 @@ Shared logo files:
 
 - `watermark_center.png` — center watermark (figure icon)
 - `watermark.png` — corner brand mark (CS logo)
+
+### Suggested order
+
+1. Watermark / brand (`add_watermark_center.py` and/or `add_brandmark.py`)
+2. SEO convert (`seo_enhancements.py`) → WebP + MP4
+3. Company metadata (`add_company_metadata.py`) → ownership tags on the final files
 
 ---
 
@@ -79,7 +84,7 @@ BASE_SCALE = 0.42
 
 ## `add_brandmark.py`
 
-Places a brand mark in a **corner**, similar to the original top-right style in `add_watermark.py`. Supports all four corners. Videos are re-encoded and **audio is removed**.
+Places a brand mark in a **corner**. Supports all four corners. Videos are re-encoded and **audio is removed**.
 
 ### Run
 
@@ -112,18 +117,6 @@ MARGIN = 35
 
 ---
 
-## `add_watermark.py` (legacy)
-
-Simple batch script: finds `watermark.png` / `logo.png`, walks `home`, `products`, and `works`, and stamps the top-right corner on images only (no prompts, no videos).
-
-```bash
-python add_watermark.py
-```
-
-Prefer `add_brandmark.py` for new work.
-
----
-
 ## `seo_enhancements.py`
 
 Converts media for web/SEO delivery:
@@ -133,6 +126,7 @@ Converts media for web/SEO delivery:
 - Already-`.webp` files are skipped
 - Existing `.mp4` files are re-encoded to H.264 + AAC
 - Originals are **removed** after a successful conversion (backup first)
+- Output stays in the **same folder** as the source file
 
 ### Run
 
@@ -187,11 +181,17 @@ python add_company_metadata.py --test
 
 Example embedded copyright: `© 2026 Your Company. All rights reserved.`
 
-Install dependencies if needed:
+### How to verify image metadata
 
-```bash
-pip install -r requirements.txt
-```
+After running the script, confirm tags were written:
+
+1. Open [https://jimpl.com/](https://jimpl.com/)
+2. Upload the image (JPEG, WebP, PNG, etc.)
+3. Check fields such as **Copyright**, **Artist / Creator**, and **Description**
+
+You should see values like your company name and `© YEAR Company. All rights reserved.`
+
+> Metadata alone is not DRM — some apps strip it on export/upload. Keep visible watermarks for stronger ownership marking.
 
 ---
 
@@ -200,10 +200,11 @@ pip install -r requirements.txt
 - **Backup first** — all scripts overwrite / replace files in place.
 - **`--test`** — copy a few files into `test/`, run with `--test`, check results, then process the real folder.
 - **Folder name vs path** — from this project root you can type `works` or `products`; elsewhere use a full path.
-- **Videos take longer** — each file is re-encoded with FFmpeg.
+- **Videos take longer** — watermark/SEO re-encodes use FFmpeg; metadata-only video updates are fast (stream copy).
 - **Subfolders** — scripts walk nested folders and skip non-media files.
-- **SEO order tip** — watermark/brand first, then run `seo_enhancements.py` so WebP/MP4 outputs keep your marks.
-- **Metadata tip** — run `add_company_metadata.py` after conversions so WebP/JPEG files get the ownership tags; metadata alone is not DRM and can be stripped.
+- **SEO + metadata** — run `seo_enhancements.py` first, then `add_company_metadata.py` so ownership tags land on the final WebP/MP4 files.
+- **Check metadata** — upload a sample image to [jimpl.com](https://jimpl.com/) to confirm company tags.
+
 ### Example session
 
 ```text
